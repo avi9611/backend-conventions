@@ -1,0 +1,271 @@
+# CLAUDE.md — <project> Backend
+
+<!--
+  This file is loaded into an assistant's context at the START of every session, before
+  anyone knows which part of it matters. Every line costs context on all the work it is
+  not about.
+
+  Ceiling: about 350 lines. When a section grows, move the detail into
+  docs/concerns/<topic>.md and leave one or two lines plus the link IN THE HEADING.
+
+  The test: can somebody write correct code for the common case from this file alone?
+  If yes, everything else belongs in the concern doc.
+
+  Fill in every <angle bracket>. Delete any section for a mechanism you did not build.
+-->
+
+Read this before adding or changing anything. It encodes the conventions the codebase already
+follows. When in doubt, **copy the newest modules** — `<module>`, `<module>` are the reference
+implementations. `<module>` specialises these rules, so match the canonical ones, not the outlier.
+
+Deeper reference, do not duplicate, link to it: `docs/concerns/` (one file per cross-cutting
+topic), `docs/CHECKLIST.md`, `docs/adr/`. **This file is the guardrail.**
+
+Stack: <framework> · <ORM> · <migrations> · <validation> · <database> · <queue> · <storage> ·
+<test runner>. Modular monolith, one package per business module.
+
+**Docs go in `.md` files, not docstrings.** When asked to document something, write a `.md` next
+to the code and leave the docstrings terse.
+
+---
+
+## Environment
+
+<!-- The things that cost half an hour every time somebody meets them. Be specific. -->
+
+Every backend command runs <where>:
+
+```
+<command prefix> alembic upgrade head
+<command prefix> python -m pytest app/<module>/test_<module>.py -v
+```
+
+- The database host inside the container is **`<host>`**, not `localhost`. Running migrations or
+  tests from the host targets the wrong database and fails confusingly.
+- <any tool not on PATH, and how to run it instead>
+- <any read-only mount that makes autofixers silently fail>
+- <what needs a recreate rather than a restart>
+
+Before claiming done: the module's tests and the full suite must pass. <Is there a lint gate? Say
+so either way.>
+
+**Known failures, so you do not re-investigate them:**
+
+- **Baseline <date>: `<N> passed / <N> failed`.** <Which test, and why it predates you.> If your
+  count differs, the difference is yours.
+- <order-dependent tests, and the actual fix>
+
+---
+
+## Session handoffs
+
+`session-handoff/` — one file per significant piece of work. It records what code and git cannot:
+why this approach, what was rejected, what was deliberately left undone.
+
+**Write one for:** cross-cutting behaviour, a new module, an architectural decision or reversal, a
+migration, an auth or permissions change, an audit, or a fix whose reasoning is not obvious from
+the diff. **Not for:** local bug fixes, styling, dependency bumps, no-behaviour refactors.
+
+**Name** `YYYY-MM-DD.md`, or `<topic>-YYYY-MM-DD.md` if that exists. Never append, never
+overwrite. Write it in the same change, not after. **Quote real numbers**, never "tests pass".
+
+**Promote what stays true.** If a handoff establishes a lasting cross-cutting fact, copy it into
+`docs/concerns/<topic>.md` **in the same change**. The handoff keeps the why. The concern doc
+holds what is true now.
+
+---
+
+## Docs: one owner per rule, and a stamp on every file
+
+- **One owner per rule.** A cross-cutting rule is stated in full in exactly one place:
+  `docs/concerns/<topic>.md`. The ADR owns the decision and its rationale. The concern doc owns
+  what is true now. **This file owns the one-line guardrail.** Everywhere else, summarise and
+  link. Never paste a rule into a README, because the copies drift and then disagree.
+- **Every file under `docs/` carries `Last verified against the code: <DD Month YYYY>`.** If you
+  verify a claim while working, move the date. If you find a doc wrong, fix it in the same change.
+
+```
+python3 tools/check_docs.py     # dead links + missing stamps
+```
+
+---
+
+## 1. Module anatomy → docs/concerns/module-anatomy-and-placement.md
+
+`app/<module>/`:
+
+| File | Responsibility |
+|---|---|
+| `models.py` | the tables. Compose the mixins |
+| `enums.py` | status values + the transition map |
+| `schemas.py` | create / update / response / detail / list |
+| `list_params.py` | filters, search, and a closed sortable set |
+| `crud.py` | query building + writes. **Flush-only, never commits** |
+| `exceptions.py` | named domain exceptions. **Always present** |
+| `service.py` | business logic. **Owns the transaction** |
+| `routes.py` | thin router. Permission-gated, tenant-aware |
+| `dependencies.py` | wiring + `OUTWARD_EDGES` |
+| `__init__.py` | **import-light** |
+| `test_<module>.py` | database-backed tests |
+
+Direction is strict: `routes → service → crud → models`. Register the router in `<aggregator>`.
+
+**A layer file past ~600 lines becomes a package**, with the init re-exporting the same names so
+the public import surface never changes. Split along seams the file already has, not by line
+count.
+
+No `utils`, `helpers`, `common` or `shared` bucket. Name the concept.
+
+## 2. The layering contract → docs/concerns/transactions-and-layering.md
+
+**The most important rule.**
+
+- **The service owns the transaction. Exactly one commit per mutation.** It stamps the tenant and
+  the author, allocates numbers, guards the state machine, writes the audit, returns the result.
+- **The data-access layer flushes only.** Never commit, never roll back there.
+- **Audit after the commit, never awaited, never inside the transaction.**
+- **Another module's data:** read through its data-access layer, write through its service with
+  `commit=False`.
+
+## 3. Models & mixins → docs/concerns/soft-delete-and-deletion.md
+
+- Compose mixins per table. <Name your standard entity shape here.>
+- **Do not** force a tenant id or soft delete onto config, permission or append-only tables.
+- Relationships load explicitly. Do not rely on implicit lazy loading.
+- Money is a decimal with a currency beside it. Never a float.
+- <Enum storage decision.>
+
+## 4. Tenancy → docs/concerns/tenancy-and-scoping.md
+
+- Every list query goes through the scoping helper.
+- Single-record reads return **404, not 403**, on the wrong tenant.
+- Writes stamp the tenant in the service. **Never trust it from the request body.**
+- A service that narrows what a record can reach must narrow its lists to match.
+
+## 5. Document numbering → docs/concerns/document-numbering.md
+
+Human-facing codes come from one allocator, inside the caller's transaction, so a rollback keeps
+the sequence gap-free. The year comes from the tenant's calendar.
+
+The counter is an **insert-on-conflict, not a select-for-update** — a row lock takes nothing when
+the row does not exist, so concurrent callers collide on the first document of each year. Do not
+"simplify" it back.
+
+## 6. State machines → docs/concerns/state-machines.md
+
+- Every status has a transition map in `enums.py`. The service checks it and raises a **409**.
+- State changes go through a **dedicated guarded endpoint**. The generic update schema **omits**
+  the status and the assignment field.
+
+## 7. Permissions → docs/concerns/permissions.md · rate-limiting.md · reference-data-and-pickers.md
+
+- Gate every route. <Format.>
+- **A dropdown is not a register read.** Options endpoints are ungated by design and return an id,
+  a label and one disambiguator. Never gate one, never widen the shape, never feed a picker from a
+  module's real list endpoint.
+- Never hardcode a role name. Never cache a permission check or the authenticated user.
+- An unguarded route is the front door: throttle it, **keyed on identity, never on IP**.
+
+## 8. List endpoints → docs/concerns/pagination-and-search.md
+
+1. Params subclass the shared base and give the sort field a closed set matching the allow-list.
+2. Build one where clause: tenant scope, filters, escaped search. Return items and the total.
+   **Never post-filter in the application.**
+3. **Never truncate silently.** A report gets a cap, the true total, and a visible notice.
+
+**Aggregates → docs/concerns/analytics.md.** Computed in SQL by the module that owns the table.
+Every clickable figure maps to a filter returning exactly that set.
+
+**After any route edit, run `<the route guard tests>`** — no other test imports the router
+aggregator, so an import-time error there passes the whole suite and kills the server on boot.
+
+## 9. Schemas
+
+- Response shapes read from ORM objects. Update shapes are all-optional, partial.
+- Exclude server-controlled fields from **both** create and update: tenant, author, generated
+  codes, status, assignment.
+
+## 10. The post-commit fresh-session gotcha
+
+<Only if your session factory does not expire on commit.> A mutating service that writes child
+rows then reloads the parent **on the same session** can serialise stale or empty children. Both
+an in-process test and a separate read look fine. **Fix:** do the final reload in a brand new
+session, exactly as a read would.
+
+## 11. Wiring, DI & errors → docs/concerns/error-handling.md
+
+- `__init__.py` stays import-light. Cross-module imports inside the function are load-bearing.
+  Do not move them to the top.
+- Route ordering: **literal paths before parameterised ones**, or the parameter route swallows
+  them.
+- **Every module has an `exceptions.py`.** Neither services nor routes build an inline error,
+  including route-level guards. Only <the N cross-cutting files> may.
+
+## 12. Migrations → docs/concerns/migrations.md
+
+- Register new models in `<the import file>` or autogenerate cannot see them. **Never let an
+  autofixer touch that file.**
+- Every new database enum needs an explicit **drop** in the downgrade. Confirm up **and** down.
+- <Known foreign-key cycles and how they are handled.>
+
+## 13. Snapshots vs live → docs/concerns/snapshots-vs-live.md
+
+An issued document must keep printing what it said. **Never re-resolve a counterparty by id at
+print time.** Money freezes with its currency.
+
+**There is no safe default. Decide per field, and say so in the module guide.**
+**Anything read live must be in the document's cache key**, or the change can never reach a
+reprint.
+
+## 14. Generated documents → docs/concerns/object-storage.md
+
+- Build a **snapshot**, render, store, write the attachment row in the same single commit.
+- **A reprint serves the stored file.** Never regenerate on download.
+- The cache token lists **every row read live**, and it goes in the storage key, never the
+  filename.
+
+## 15. Caching → docs/concerns/caching.md
+
+- **Never cache what gates access.**
+- **Clear after the commit, never inside the transaction.**
+- **Honour the kill switch.** A switch you cannot trust is worse than none.
+- Never cache a miss, and never cache a read that follows a write in the same request.
+
+## 16. Dates & numbers → docs/concerns/dates-and-timezones.md · money-and-quantities.md
+
+- **Business dates book on the tenant's calendar.** Never a UTC date. Instants stay UTC.
+- **Money is a decimal with a currency.** Quantities are decimals at a fixed scale, and never
+  interpolated raw into text a person reads.
+
+---
+
+## Anti-patterns — do NOT do these
+
+Each line is a violation of the section in brackets.
+
+1. A commit or rollback in the data-access layer, or more than one commit per mutation. [§2]
+2. Trusting the tenant id or the author from the request body. [§4]
+3. A list query with no tenant scope, or a wrong-tenant read that 403s instead of 404. [§4]
+4. Float for money, or an amount with no currency. [§3]
+5. Post-filtering search in the application, or an unescaped LIKE. [§8]
+6. Sorting by a raw parameter with no allow-list. [§8]
+7. Accepting a status or an assignment through the update schema. [§6]
+8. Returning a parent after writing children on the same session. [§10]
+9. An unguarded route, or a hardcoded role name. [§7]
+9b. Feeding a dropdown from a gated list endpoint, or gating an options route. [§7]
+10. A new database enum with no drop in the downgrade, or a model missing from the import file. [§12]
+11. Heavy imports in `__init__.py`, or implicit lazy loading. [§3, §11]
+12. Awaiting the audit call, or auditing inside the transaction. [§2]
+13. A UTC date where a tenant calendar date belongs. [§16]
+14. An inline HTTP error in a service or a route, including ownership and upload guards. [§11]
+15. Interpolating a raw decimal quantity into text a person reads. [§16]
+16. Re-resolving a counterparty by id at print time on an issued document. [§13]
+17. Regenerating a stored document on download, or a cache key missing a live read. [§14]
+18. Changing a cached list without clearing it after the commit. [§15]
+19. Patching a module-level object by assignment in a test. It leaks into every later test. [tests]
+
+## New-module checklist
+
+Build in the §1 order, then: permissions in the catalogue → router in the aggregator → models in
+the migration import file → a reversible migration → the module guide → tests, green →
+a session handoff. Full walkthrough: `docs/CHECKLIST.md` Part 3.

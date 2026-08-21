@@ -1,0 +1,32 @@
+# Pre-commit hooks. Copy to .pre-commit-config.yaml at the repo root.
+#
+# Install once per clone:   pip install pre-commit && pre-commit install
+# Run against everything:   pre-commit run --all-files
+#
+# NOTE on containers: if your source is mounted read-only inside the app container,
+# anything that rewrites files silently fails in there. Run these on the host.
+
+repos:
+  - repo: local
+    hooks:
+      - id: check-docs
+        name: docs — links resolve, stamps fresh
+        entry: python3 tools/check_docs.py
+        language: system
+        files: \.md$
+        pass_filenames: false
+        description: >
+          Fails on dead relative links and on any concern doc missing its
+          "Last verified against the code" stamp. Stamps older than 30 days are
+          warnings. Pass --strict to enforce them.
+
+  # Add your formatter and linter here. One note that costs an afternoon if missed:
+  # the file that imports every model for migrations looks like dead imports to every
+  # autofixer. Exclude it explicitly.
+  #
+  # - repo: https://github.com/astral-sh/ruff-pre-commit
+  #   rev: <pin>
+  #   hooks:
+  #     - id: ruff
+  #       args: [--fix, --exclude, app/core/alembic_models_import.py]
+  #     - id: ruff-format
