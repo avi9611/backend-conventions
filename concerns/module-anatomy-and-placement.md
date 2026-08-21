@@ -220,6 +220,10 @@ from §2. Naming it per concept costs nothing at the start and is annoying to fi
 
 ## 7. How to re-check this doc
 
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
+
 ```bash
 # Nothing in core may name a business concept. Replace the word list with your own
 # domain vocabulary. Expect hits only in the wiring files.

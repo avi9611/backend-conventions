@@ -4,7 +4,7 @@
 > the application died on boot.
 >
 > **Status in this project:** in force from day 1
-> **New in this kit.** Phoenix has excellent testing practice and no document describing it.
+> **Worth its own file.** Testing practice is usually good and almost never written down.
 > **Last verified against the code:** 21 August 2026
 
 ---
@@ -44,8 +44,8 @@ to them.
 import the router aggregator. So a route module that fails at import time is invisible to the
 whole suite while the application refuses to start.
 
-This is not hypothetical. It happened in Phoenix when a route gained a query parameter helper in
-a file that never imported it.
+This is not hypothetical. It has happened, when a route gained a query parameter helper in a file
+that never imported it.
 
 **The fix is five small tests.** None is over 100 lines. Together they are the highest-value
 testing you will write.
@@ -99,7 +99,7 @@ are far too fast.
 **The fix.** Inject a delay inside the locked section, so the race is real. **Then delete the lock
 and confirm the test fails.** Only then put the lock back.
 
-Phoenix found a real double-approval bug this way, in a path where the test had been passing for
+A real double-approval bug was found this way, in a path where the test had been passing for
 months. → [`concurrency.md`](concurrency.md)
 
 ### 3c. The patch that leaks
@@ -125,7 +125,8 @@ which one, silently. A non-superuser actor then fails every test that assigns so
 new one, **copy an existing fixture whole**. The three conditions are the point of it, not
 decoration.
 
-Phoenix has 18 copies of this fixture and all of them were wrong until one day in August.
+One codebase had 18 copies of this fixture, and every one of them was wrong until somebody
+finally noticed.
 
 ### 3e. Order-dependent tests
 
@@ -222,6 +223,10 @@ every new person investigates it again.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # The whole suite. Record the real numbers in §5.

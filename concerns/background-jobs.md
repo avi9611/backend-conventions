@@ -12,9 +12,10 @@
 Some work must not block the HTTP response. Writing an audit row, cleaning up old data, sending
 an email.
 
-The important thing to know about most systems is how little genuinely belongs here. Phoenix runs
-**two** background tasks in production, out of forty modules. Knowing that is worth more than the
-framework's documentation, because it is easy to assume a rich pipeline exists when it does not.
+The important thing to know about most systems is how little genuinely belongs here. One system I
+reviewed ran **two** background tasks in production, across forty modules. Knowing that is worth
+more than the framework's documentation, because it is easy to assume a rich pipeline exists when
+it does not.
 
 **Background is not free.** A job has no request context, owns its own transaction, fails
 silently, and is a second place your code can be running from. Make each case argue for itself.
@@ -62,9 +63,9 @@ file.
 data.
 
 **Why.** A pre-aggregated summary table exists. It was written as a side effect of something else
-running, or by a job that was never actually scheduled. Phoenix had both at once: one summary
-table written only when payroll ran, and a second written by nothing at all, because the task
-existed but appeared in no schedule and had no route.
+running, or by a job that was never actually scheduled. One codebase had both at once: a summary
+table written only as a side effect of running payroll, and a second written by nothing at all,
+because the task existed but appeared in no schedule and had no route.
 
 **The general rule this is an instance of: before building a figure on a pre-aggregated table,
 check what writes it and when.** A summary table with no live writer is worse than no summary
@@ -82,17 +83,17 @@ loop, from that tenant's zone. Tenants in distant zones resolve different days i
 
 **Symptom.** A 300-line circuit breaker, re-exported twice, with zero call sites.
 
-**Why.** It was written for a need that was real and then the need moved. In Phoenix's case it
+**Why.** It was written for a need that was real and then the need moved. In the case I saw, it
 was written synchronous, for jobs calling external services, and the place it was actually wanted
-was an async cache read it cannot wrap.
+was an async cache read it could not wrap.
 
-**The fix.** Either wire it up or delete it. Dead infrastructure is worse than none, because the
+**The fix.** Either connect it or delete it. Dead infrastructure is worse than none, because the
 next person assumes the problem is solved.
 
 ### 3e. Two connection pools, one process
 
 Some database drivers are not safe across a process fork. A worker that forks needs to build its
-own engine per process rather than inheriting the web app's. This is a real footgun with async
+own engine per process rather than inheriting the web app's. This is easy to get wrong with async
 Postgres drivers, and the failure is confusing rather than obvious.
 
 ---
@@ -152,6 +153,10 @@ Keep this list complete. Its value is that a reader can trust "that is the whole
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Every dispatch in the codebase. Compare to §5.

@@ -69,8 +69,8 @@ are cheap now. Most get very expensive once there is data.
 - [ ] **Permission model.** Permission strings held by roles, held by users. Never check a role
       name in business logic. → [`permissions.md`](concerns/permissions.md)
 - [ ] **Is there a row-level "mine versus everyone's" distinction?** If yes, decide now whether
-      it is a confidentiality boundary or a UI default. Phoenix never settled this and the gap
-      is still open years later.
+      it is a confidentiality boundary or a UI default. Left unsettled, this gap stays open for
+      years.
 - [ ] **Who bypasses everything?** A superuser flag, a platform role, or nobody.
 - [ ] **Where does the token live?** An httpOnly cookie set by a server you control beats
       anything the browser's JavaScript can read. → [`security.md`](concerns/security.md)
@@ -203,6 +203,8 @@ before it. → [`module-anatomy-and-placement.md`](concerns/module-anatomy-and-p
 - [ ] Does anything here need a summary panel or a report? → [`analytics.md`](concerns/analytics.md) §6
 - [ ] Does anything here need to run outside the request? → [`background-jobs.md`](concerns/background-jobs.md) §6
 - [ ] Does anything here need a cache? Almost certainly not. → [`caching.md`](concerns/caching.md) §6
+- [ ] Does anything here take in or hand out a spreadsheet? → [`import-and-export.md`](concerns/import-and-export.md) §6
+- [ ] Does a screen depend on how this module shapes its responses? → [`frontend-contract.md`](concerns/frontend-contract.md) §6
 
 ---
 
@@ -219,6 +221,9 @@ before it. → [`module-anatomy-and-placement.md`](concerns/module-anatomy-and-p
 - [ ] It takes the tenant context, and reads and writes are scoped by it.
 - [ ] It raises named exceptions only. No inline status codes with a message string.
 - [ ] The wrong-tenant answer is **404, not 403**. A 403 confirms the record exists.
+- [ ] It has a summary, and every field has a description. That is what somebody reads at 2am.
+- [ ] If it changes the shape of an existing response, check what is safe to change first, and
+      plan the sequence. → [`api-contract-and-versioning.md`](concerns/api-contract-and-versioning.md)
 - [ ] After adding it, run the route guard tests. No other test imports the router aggregator.
 
 ---
@@ -316,7 +321,10 @@ before it. → [`module-anatomy-and-placement.md`](concerns/module-anatomy-and-p
 - [ ] If a cross-cutting rule changed, its concern doc changed in the same commit, and the date
       stamp moved.
 - [ ] If the change spans backend and frontend, both halves shipped together. A new required
-      header breaks every caller that has not been updated.
+      header or field breaks every caller that has not been updated.
+      → [`api-contract-and-versioning.md`](concerns/api-contract-and-versioning.md) ·
+      [`frontend-contract.md`](concerns/frontend-contract.md)
+- [ ] The API schema snapshot was regenerated, and the diff is what you meant.
 - [ ] If it was a real decision, a reversal, a migration, an auth change or an audit, write a
       handoff. → [`templates/SESSION-HANDOFF.md`](templates/SESSION-HANDOFF.md)
 - [ ] Nothing was committed without being asked for.
@@ -334,6 +342,8 @@ before it. → [`module-anatomy-and-placement.md`](concerns/module-anatomy-and-p
 - [ ] Transport is HTTPS only, with strict transport security on in production and off in dev.
 - [ ] The cache and the queue both require a password.
 - [ ] Public asset domains are off for any bucket holding customer data.
+- [ ] Data leaving the system is permissioned and audited. Export is not the same act as read.
+      → [`import-and-export.md`](concerns/import-and-export.md)
 - [ ] Log output has no passwords, tokens or personal data in it.
       → [`observability.md`](concerns/observability.md)
 - [ ] Backups run, and you have restored one at least once. An untested backup is a hope.

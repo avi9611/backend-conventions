@@ -46,7 +46,7 @@ finished.
 
 **The fix.** Decide early. Either recipients come from a policy, resolved centrally by event
 type, or they are resolved at the call site and you accept that. What you must not do is have
-half a policy engine and call sites that ignore it, which is where Phoenix ended up.
+half a policy engine and call sites that ignore it, which is a very easy place to end up.
 
 The natural shape is the same as permissions: **the event says what happened, the policy says who
 cares.** That is worth building before you have ten call sites, not after.
@@ -136,6 +136,10 @@ Fire-and-forget is right for anything advisory. If you have both, name them diff
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Dispatch sites. Compare to §5.

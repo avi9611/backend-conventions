@@ -156,6 +156,10 @@ differ.
 
 ## 7. How to re-check this doc
 
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
+
 ```bash
 # A commit or rollback in the data-access layer. Expect zero, docstrings aside.
 grep -rn --include="crud.py" "\.commit()\|\.rollback()" app/
@@ -177,7 +181,11 @@ grep -rn --include="*.py" "commit=False" app/ | grep -v "test_"
 ```
 
 ```bash
-# More than one commit in a single function. Read the hits, do not just count them.
+# More than one commit in a single function.
+#
+# Read every hit. The common false positive is an if/else with one commit in each
+# branch. Only one runs per call, so that is fine. A real hit is two commits on the
+# same path, which means half the operation can survive the other half failing.
 python3 - <<'PY'
 import ast, pathlib
 for p in sorted(pathlib.Path("app").rglob("*.py")):

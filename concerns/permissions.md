@@ -10,7 +10,7 @@
 ## 1. What & why
 
 Every route is gated by a permission string. Roles hold permissions. Users hold roles. One
-catalogue is the source of truth, and permissions are seeded from it rather than hand-assigned
+catalogue decides what exists, and permissions are seeded from it rather than hand-assigned
 per role.
 
 Two separate axes decide who sees what. **The permission** answers "may you touch this resource
@@ -58,9 +58,9 @@ default?**
 - Default. Then grant those roles the read-all permission and delete the "own only" wording from
   the catalogue.
 
-What you must not do is what Phoenix did, which is document and display a promise the API does
-not keep. Whichever way you go, the danger sign is the same: **the list predicate and the detail
-predicate written in two places.**
+What you must not do is document and display a promise the API does not keep. Whichever way you
+go, the danger sign is the same: **the list predicate and the detail predicate written in two
+places.**
 
 ### 3b. The client-side permission name is a lookup table, not a string swap
 
@@ -72,8 +72,8 @@ hand. One client key can require several server permissions, and often not the o
 reports panel might need read-all rather than a reports permission, because the panel counts the
 whole tenant.
 
-**Nothing fails when that table drifts.** An entry pointing at a permission that no longer exists
-just returns false, which silently hides the affordance from everyone.
+**Nothing fails when that table falls out of step.** An entry pointing at a permission that no
+longer exists just returns false, which silently hides the affordance from everyone.
 
 **The fix.** Either use the same string on both sides, or make a test assert that every name in
 the client's table exists in the server's catalogue. The second is ten lines. Do it on day 1.
@@ -142,7 +142,7 @@ turns out to need a permission nobody expected.
 
 ### The permission catalogue
 
-Keep the catalogue itself as the source of truth. This table records only the things a reader
+The catalogue file itself is the master list. This table records only the things a reader
 cannot get from it.
 
 | Fact | Value |
@@ -177,6 +177,10 @@ Each entry needs a reason. Adding one is a security decision.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Every route is gated. This walks the resolved dependency graph rather than the

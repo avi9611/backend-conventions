@@ -3,8 +3,8 @@
 > Read this before you add starter data, a role, or a permission.
 >
 > **Status in this project:** in force from day 1
-> **New in this kit.** Phoenix has one seeding trap that costs an hour every time somebody meets
-> it, and it is documented as an aside in three files.
+> **Worth its own file.** Seeding has one trap that costs an hour every time somebody meets it,
+> and it usually survives as an aside in three other docs.
 > **Last verified against the code:** 21 August 2026
 
 ---
@@ -53,12 +53,12 @@ two disagree with no explanation.
 **The fix, and pick one deliberately:**
 
 - **Accept it.** Then document the symptom and the manual fix, prominently, because somebody will
-  lose an hour to it. This is what Phoenix does.
+  lose an hour to it. This is the common choice.
 - **Reconcile.** The seeder removes grants that are no longer in the catalogue. Now the catalogue
-  really is the source of truth, and the risk is that it also removes a grant an administrator
+  really is the master list, and the risk is that it also removes a grant an administrator
   made deliberately through the UI. That is only safe if the catalogue is the *only* way grants
   are made.
-- **Detect.** The seeder does not remove anything, but it **reports** the drift at startup. Ten
+- **Detect.** The seeder does not remove anything, but it **reports** the mismatch at startup. Ten
   lines, no risk, and it turns an hour of confusion into a log line. **This is the one I would
   build.**
 
@@ -94,7 +94,7 @@ demonstration.
 **The fix.** Separate scripts, separate commands, and demo data is never wired to anything
 automatic.
 
-**And note what demo data does to your tests.** Phoenix has two tests that fail on a freshly
+**And note what demo data does to your tests.** I have seen two tests that fail on a freshly
 seeded database and pass on the next run, because they reach for *a* record rather than pinning
 the one they created, and straight after seeding they find the demo's. That is the tests being
 wrong, not the seeder. But it is the kind of thing that eats a morning.
@@ -171,6 +171,10 @@ not proof it does not exist. → [`permissions.md`](permissions.md) §3c
 
 ## 7. How to re-check this doc
 
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
+
 ```bash
 # The seed is idempotent: run it twice and diff the row counts.
 python -m app.iam.seed && python -m app.iam.seed
@@ -183,7 +187,7 @@ wc -l app/iam/seed.py app/iam/permission_catalog.py
 ```
 
 ```bash
-# Grants in the database that are not in the catalogue. This is the §3a drift.
+# Grants in the database that are not in the catalogue. This is the §3a problem.
 # Write it as a script and run it in CI.
 ```
 

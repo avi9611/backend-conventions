@@ -5,7 +5,7 @@
 > **Status in this project:** not yet decided / in force since <date>
 > **Last verified against the code:** <DD Month YYYY>
 
-Guardrail: `CLAUDE.md` §N. Decision: ADR-N. Implementation: `path/to/thing`.
+Short rule: `CLAUDE.md` §N. Decision: ADR-N. Implementation: `path/to/thing`.
 
 Copy this file to start a new concern doc. Keep all seven sections, in this order. The shape is
 what makes them scannable and comparable. Delete this paragraph.
@@ -24,8 +24,8 @@ Say the failure mode plainly, because that is what makes someone read the rest.
 The hard rules, as bullets. Each one has to be checkable. Somebody reading a diff should be able
 to say "this line breaks rule 3".
 
-Cross-reference the matching `CLAUDE.md` section, so the short guardrail and the long rule cannot
-drift apart.
+Cross-reference the matching `CLAUDE.md` section, so the short rule there and the long one here
+cannot fall out of step.
 
 ## 3. The traps
 
@@ -85,6 +85,10 @@ A short numbered list. What a developer must do about this topic when building s
 This is the section a future module author reads.
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 The literal commands that rebuild §5, with the counts they should produce.
 

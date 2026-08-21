@@ -1,71 +1,61 @@
 # Recommendations
 
-What I added on top of Phoenix, and the Phoenix decisions I would make differently on a new
-project.
+The parts of this kit that are opinions rather than conventions.
 
-**Last verified against the code: 21 August 2026.** (Phoenix backend, at that date.)
+Five things worth building on day 1. Six traps that stay open for years if you do not decide
+early. Three patterns worth copying exactly. And what this kit does not cover.
+
+**Last verified against the code: 21 August 2026.**
 
 ---
 
-## Part 1 — What I added
+## Part 1 — The nine topics that usually go undocumented
 
-Phoenix has 21 concern docs. This kit has 30. Nine are new, and all nine cover something Phoenix
-does in practice and never wrote down.
+Twenty-one of the thirty concern docs cover ground most teams eventually write down. These nine
+usually do not get written, and every one of them covers something teams already do in practice.
 
-| New doc | Why it earns a file |
+| Doc | Why it earns a file |
 |---|---|
-| [`module-anatomy-and-placement.md`](concerns/module-anatomy-and-placement.md) | Phoenix has this, split across `CLAUDE.md` §1, `MODULE_STRUCTURE.md` and `PROJECT_CONVENTIONS.md` §2 and §5. Three files, and the third contradicts the first about whether nested groups are allowed. One file. |
-| [`configuration-and-secrets.md`](concerns/configuration-and-secrets.md) | The "safe in dev, dangerous in production" pattern shows up five separate times in Phoenix and is documented as an aside each time. It is one pattern and it deserves one page with a startup assertion. |
-| [`seeding-and-bootstrap.md`](concerns/seeding-and-bootstrap.md) | The additive-seed trap costs an hour every time somebody meets it. Phoenix mentions it in three files as a warning and never as a rule. |
-| [`testing.md`](concerns/testing.md) | Phoenix's testing practice is genuinely good and entirely undocumented. The five guard tests are the highest-value thing in this kit and they were scattered across two test files and a `CLAUDE.md` aside. |
-| [`observability.md`](concerns/observability.md) | The real gap. Phoenix has a logger and no rules. Everything else in the set prevents bugs. This one is about the ones that get through, and it is the file you need at 2am. |
-| [`api-contract-and-versioning.md`](concerns/api-contract-and-versioning.md) | Phoenix has a `/v1` prefix and no rule about what may change behind it. For an internal system "it is a namespace" is a fine answer, and it needs saying. |
-| [`soft-delete-and-deletion.md`](concerns/soft-delete-and-deletion.md) | Phoenix deliberately does not give this a file and folds it into tenancy. The partial-unique-index trap alone justifies one. |
-| [`import-and-export.md`](concerns/import-and-export.md) | Phoenix does both, in HRM, and documents neither. Formula injection is a real hole and a one-line fix. |
-| [`frontend-contract.md`](concerns/frontend-contract.md) | Merges Phoenix's frontend guardrail with its unsaved-work concern, keeping only the parts where the backend's shape decides the client's behaviour. A backend developer needs those and not the rest. |
+| [`module-anatomy-and-placement.md`](concerns/module-anatomy-and-placement.md) | This normally lives split across the rules file, a structure doc and a conventions spec. Three files, and by month six they contradict each other about whether nested groups are allowed. |
+| [`configuration-and-secrets.md`](concerns/configuration-and-secrets.md) | The "safe in dev, dangerous in production" pattern shows up five separate times and is documented as an aside each time. It is one pattern, and it deserves one page with a startup assertion. |
+| [`seeding-and-bootstrap.md`](concerns/seeding-and-bootstrap.md) | The additive-seed trap costs an hour every time somebody meets it. It usually survives as a warning in three files and never as a rule. |
+| [`testing.md`](concerns/testing.md) | Testing practice is usually good and almost never written down. The five guard tests are the highest-value thing in this kit, and they normally exist as two test files nobody points at. |
+| [`observability.md`](concerns/observability.md) | The real gap. Everything else in the set prevents bugs. This one is about the ones that get through, and it is the file you need at 2am. |
+| [`api-contract-and-versioning.md`](concerns/api-contract-and-versioning.md) | A `/v1` prefix with no rule about what may change behind it is decoration. For an internal system "it is a namespace" is a fine answer, and it needs saying out loud. |
+| [`soft-delete-and-deletion.md`](concerns/soft-delete-and-deletion.md) | Often folded into the tenancy doc. The partial-unique-index trap alone justifies its own file. |
+| [`import-and-export.md`](concerns/import-and-export.md) | Most teams build both and document neither. Formula injection is a real hole and a one-line fix. |
+| [`frontend-contract.md`](concerns/frontend-contract.md) | The parts where the backend's shape decides the client's behaviour. A backend developer needs those and does not need the rest of a frontend guide. |
 
-I also moved dates and timezones into the concerns folder. In Phoenix it lives next to the code as
-`app/core/utils/DATETIME.md`, which is a good file in a place where a new developer will not find
-it before they need it.
-
-### The structural change to every doc
-
-Phoenix's docs answer questions that were settled years ago and record only the answer. A new
-project has to answer them, so **the question is the useful part**.
-
-Every doc in this kit has a **§4 Decisions this project must make**: a table of the real forks in
-the road, with the trade-off spelled out and a blank column for your answer. That is the main
-thing that makes the folder portable.
-
-The other structural change: §5 Inventory starts **empty**, with the headers in place. That is
-correct, not incomplete. A doc that describes a mechanism you did not build is worse than no doc.
+**Dates and timezones** is the tenth near-miss. It usually lives next to the code as a note on the
+datetime helper, which is a good file in a place where a new developer will not find it before
+they need it. It belongs in the concerns folder.
 
 ---
 
-## Part 2 — The five things I would build on day 1
+## Part 2 — The five things to build on day 1
 
-Ordered by value per hour spent. None of these is more than a day.
+Ordered by value per hour spent. None is more than a day.
 
 ### 1. The five guard tests
 
 → [`testing.md`](concerns/testing.md) §3a
 
 The app boots and the schema builds. No duplicate paths. Every route gated except a written
-allow-list. Shared shapes pinned. Module edges declared and checked.
+allow-list. Shared response shapes pinned. Module edges declared and checked.
 
-Phoenix wrote these after a release where **445 tests passed and the server died on boot**. They
-are about 400 lines in total and they close a class of failure that review cannot see. Write them
-before the second module, not after the first incident.
+These get written after a release where **445 tests passed and the server died on boot**. About
+400 lines in total, and they close a class of failure that review cannot see. Write them before
+the second module, not after the first incident.
 
-### 2. Seed drift detection
+### 2. Seed mismatch detection
 
 → [`seeding-and-bootstrap.md`](concerns/seeding-and-bootstrap.md) §3a
 
-The seeder does not remove anything, but it **reports** at startup what is in the database and not
-in the catalogue. Ten lines. It turns an hour of "why does this role still have that permission"
-into a log line.
+The seeder does not remove anything, but it **reports** at startup what is in the database and
+not in the catalogue. Ten lines. It turns an hour of "why does this role still have that
+permission" into a log line.
 
-Phoenix's answer is to document the symptom, which is the honest fallback and much worse than the
+The usual answer is to document the symptom, which is the honest fallback and much worse than the
 detection.
 
 ### 3. A production settings assertion
@@ -82,13 +72,13 @@ if settings.ENVIRONMENT == "production":
 A production build that refuses to start is a much better outcome than one that starts with a
 development setting on. The pre-production checklist is the backup, not the control.
 
-### 4. An OpenAPI schema snapshot in the repo
+### 4. An API schema snapshot in the repo
 
 → [`api-contract-and-versioning.md`](concerns/api-contract-and-versioning.md) §7
 
 Generate the schema, commit it, and diff it on every change. Every contract break then shows up in
-the pull request as a diff. It costs one script and it is the only thing that makes §3a of that
-file enforceable rather than advisory.
+the pull request as a diff. It costs one script, and it is the only thing that makes the
+safe-versus-breaking table in that file enforceable rather than advisory.
 
 ### 5. Error tracking
 
@@ -100,36 +90,35 @@ attached. It pays for itself in the first month.
 
 ---
 
-## Part 3 — Six Phoenix decisions I would revisit
+## Part 3 — Six traps that stay open for years
 
-Not criticism. Every one of these was a reasonable call at the time, and each is written up in the
-relevant concern doc. These are the ones where a new project has a cheaper option because it has
-not started yet.
+Every one of these is cheap to settle before the first module and expensive afterwards. All six
+are ones I have watched stay open in a real codebase long after everyone agreed they should be
+fixed.
 
 ### 1. Settle "mine only" before writing any code
 
 → [`permissions.md`](concerns/permissions.md) §3a
 
-Phoenix's own-scope rule narrows lists and not single-record reads. So a record reassigned to
-somebody else drops off the previous owner's list and their saved link still opens **and edits**
-it. Four modules are still on the old shape, years later, and the documentation and the UI promise
-something the API does not keep.
+The common shape is a row-scope rule that narrows lists and not single-record reads. So a record
+reassigned to somebody else drops off the previous owner's list, and their saved link still opens
+**and edits** it. The documentation and the UI then promise something the API does not keep.
 
-The fix is not hard. What made it stick is that nobody answered the underlying question:
+The fix is not hard. What makes it stick is that nobody answered the underlying question:
 **is "mine only" a confidentiality boundary, or a UI default?** Answer it in Part 1 of the
 checklist and the implementation follows.
 
-The Phoenix module that *did* fix it did something worth copying exactly: it **overrides the
-inherited tenant-only helper so it raises**, so a future method physically cannot reach for the
-house helper by accident.
+And there is one trick worth copying exactly. In a module with a narrower rule, **override the
+inherited tenant-only helper so it raises**. Then a future method physically cannot reach for the
+house helper by accident, which is how these holes reopen.
 
 ### 2. Build the audit outbox on day 1, if the trail is a compliance requirement
 
 → [`audit-logging.md`](concerns/audit-logging.md) §3a
 
-Phoenix dispatches audit entries to a queue, fire-and-forget, after the commit. If the queue is
-unreachable, the business transaction commits and **no audit row is ever written**. No dead
-letter, no reconciliation. Phoenix lists this as the single most valuable gap left open.
+The standard design dispatches audit entries to a queue, fire-and-forget, after the commit. If the
+queue is unreachable, the business transaction commits and **no audit row is ever written**. No
+dead letter, no reconciliation.
 
 For a system where the trail is a convenience, fire-and-forget is right. For an audited one, an
 outbox is a table and about thirty lines, and it makes the log commit or roll back with the thing
@@ -139,20 +128,21 @@ it describes. You cannot retrofit a trail you did not write.
 
 → [`caching.md`](concerns/caching.md) §3e
 
-Phoenix's query keys are not tenant-scoped, so both tenants share one cache entry. The visible
-symptom was fixed by removing cached queries on switch, plus a full page reload. That works, and
-correctness now depends on remembering to do it.
+Query keys that are not tenant-scoped mean both tenants share one cache entry. The visible symptom
+gets fixed by clearing cached queries on switch, plus a page reload. That works, and correctness
+then depends on somebody remembering to do it.
 
-Threading the tenant into every key factory is mechanical and it is about thirty files once the
+Threading the tenant into every key factory is mechanical, and it is about thirty files once the
 application exists. At the start it is zero.
 
 ### 4. Name the shared kernel for its concept, not `common`
 
 → [`module-anatomy-and-placement.md`](concerns/module-anatomy-and-placement.md) §2
 
-Phoenix's own placement rules list `common` as a smell word and block new ones. Phoenix has
-`app/common`. The contents are correctly classified and well named per file. Only the folder is
-wrong, and moving it now needs a compatibility shim and a caller migration.
+Almost every project ends up with a module named `common` or `shared`, and almost every project's
+own placement rules list those as smell words. The contents are usually correctly classified and
+well named per file. Only the folder is wrong, and moving it later needs a compatibility shim and
+a caller migration.
 
 Naming it per concept on day 1 costs nothing.
 
@@ -160,48 +150,50 @@ Naming it per concept on day 1 costs nothing.
 
 → [`migrations.md`](concerns/migrations.md) §3d
 
-Phoenix has three cycles. The newest carries the flag and regenerates cleanly. The two older ones
-do not, so a from-scratch regeneration of that schema needs manual reordering, permanently.
+A cycle that carries the flag regenerates cleanly. One that does not means a from-scratch
+regeneration of the schema needs manual reordering, permanently.
 
-The flag is one keyword. Use it on every cycle you create.
+The flag is one keyword. Use it on every cycle you create, including the first.
 
 ### 6. Give exports their own permission
 
 → [`import-and-export.md`](concerns/import-and-export.md) §3f
 
-Phoenix has an export permission declared and gating nothing. Export is treated as the same act as
-reading the list.
+Export usually gets treated as the same act as reading the list. Sometimes there is even an export
+permission declared that gates nothing.
 
-It is one permission and it is the difference between "who may look at this" and "who may take a
+It is one permission, and it is the difference between "who may look at this" and "who may take a
 copy of this on their laptop".
 
 ---
 
-## Part 4 — Three Phoenix decisions I would copy exactly
+## Part 4 — Three patterns worth copying exactly
 
-Worth naming, because they are unusual and they are right.
+Named because they are unusual, and because the obvious alternatives are worse.
 
 **The options endpoint contract.**
 → [`reference-data-and-pickers.md`](concerns/reference-data-and-pickers.md)
 
 A separate, deliberately tiny, ungated endpoint per referenceable resource. Its safety comes from
 the narrowness of the shape rather than from a gate, and a test pins the field set so widening it
-has to be deliberate. It closed 14 real defects across 6 of 10 roles. Most teams either gate the
-picker and live with empty required fields, or open the register up entirely.
+has to be deliberate. It closed 14 real defects across 6 of 10 roles in the system it came from.
+Most teams either gate the picker and live with empty required fields, or open the register up
+entirely.
 
 **Optimistic locking on the row's own updated timestamp.**
 → [`concurrency.md`](concerns/concurrency.md) §3c
 
 No new column, no migration, no schema change, because every response already carries the value.
 Callers echo back what they were given, and a list row is as good a source as a detail read. And
-refusing a request with no version, rather than allowing it, is the detail that makes it hold.
+refusing a request that carries no version, rather than allowing it, is the detail that makes it
+hold.
 
 **"Never truncate silently" as the rule, rather than "paginate everything".**
 → [`pagination-and-search.md`](concerns/pagination-and-search.md)
 
 It is the version of the rule that survives contact with reports, dashboards and financial totals,
-where a pager reads badly or is simply wrong. A cap plus the true total plus a visible notice is a
-better answer than either extreme.
+where a pager reads badly or is simply the wrong answer. A cap plus the true total plus a visible
+notice beats either extreme.
 
 ---
 

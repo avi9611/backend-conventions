@@ -70,7 +70,7 @@ helper would need a flag at every call site, and the failure mode of getting the
 silent and only visible on paper. Two types, two names, no flag.
 
 **And the client needs its own copy of the same helper**, written with string manipulation only.
-No parsing to a number anywhere in it. Verify it against the server version on a shared table of
+No parsing to a number anywhere in it. Check it against the server version on a shared table of
 cases, not by eye.
 
 ### 3b. Float on the way in, decimal in the database
@@ -91,7 +91,7 @@ and the other `1.234,56`.
 **Why.** The default number formatter in most languages follows the device.
 
 **The fix.** Pick one locale for the whole system and enforce it. A lint rule that bans
-constructing a number formatter outside one file is the cheap version. Phoenix has exactly that.
+constructing a number formatter outside one file is the cheap version, and it works.
 
 ### 3d. A bare amount column with no currency
 
@@ -100,8 +100,8 @@ constructing a number formatter outside one file is the cheap version. Phoenix h
 **Why.** The column was added early, when there was only one currency.
 
 **The fix.** Pair every amount with a currency from the start. It costs one column. Retrofitting
-it means a migration and a backfill decision per table, and Phoenix has three of these still
-open years later.
+it means a migration and a backfill decision per table, and systems carry three or four of these
+open for years.
 
 ### 3e. Nothing forces the helpers
 
@@ -172,6 +172,10 @@ percentage.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Float used for a money-shaped field. Read each hit.

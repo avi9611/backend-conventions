@@ -4,8 +4,8 @@
 > happened in production.
 >
 > **Status in this project:** in force from day 1
-> **New in this kit.** Phoenix has a logger and no document about it. This is the gap that hurts
-> at 2am.
+> **Worth its own file.** Most projects have a logger and no rules about it. This is the gap that
+> hurts at 2am.
 > **Last verified against the code:** 21 August 2026
 
 ---
@@ -194,6 +194,10 @@ Cheaper than the time it saves in the first month.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Modules configuring logging themselves. Expect zero.

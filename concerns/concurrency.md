@@ -49,7 +49,7 @@ in January, and impossible to reproduce in February.
 
 **Why.** `SELECT ... FOR UPDATE` **locks nothing when the row does not exist yet.** So every
 concurrent caller misses, every one inserts, one wins and the rest die on the unique constraint.
-Phoenix measured one of twelve callers succeeding.
+Measured on a real system: one of twelve concurrent callers succeeded.
 
 It fires on the first record of each type each year, and on the first record in a newly created
 tenant. Both of those are days when everyone is trying at once.
@@ -75,8 +75,8 @@ before  = locked.state                            # ← the value from read #1
 The lock worked. The guard read pre-lock data. The write serialised correctly and checked the
 wrong thing.
 
-**Now the genuinely unnerving part.** A dozen other guards in Phoenix used the same shape and
-were **correct by accident of garbage collection**. They discarded read #1, so the object was
+**Now the genuinely unnerving part.** A dozen other guards in the same codebase used this shape
+and were **correct by accident of garbage collection**. They discarded read #1, so the object was
 collected, so the locked re-read genuinely reloaded. The ordinary refactor of keeping the
 reference in a variable would have silently disabled any of them. No exception. No failing test.
 Just an occasional double transition.
@@ -85,7 +85,7 @@ Just an occasional double transition.
 caller keeps the reference. Put it in the shared helper and put the reason in a comment, so it
 cannot be simplified away.
 
-**The rule is about the read, not about which lock you took.** Phoenix hit the same trap a second
+**The rule is about the read, not about which lock you took.** The same trap turned up a second
 time with a different lock: an advisory lock, then a plain eager-loading read. The read that
 answers "did somebody else finish this while I was blocked?" **must force a refresh**, whatever
 lock you were waiting on.
@@ -151,8 +151,8 @@ means a noisy rollout and a guarantee. Refuse.
 Row 4: exempt is usually right. A bulk action takes an explicit id list and reports per-row
 failures already, and there is no single sensible version for a batch.
 
-Row 6: an idempotency key stops a double-submitted create from making two records. Phoenix does
-not have one and relies on unique constraints instead, which works when there is a natural key
+Row 6: an idempotency key stops a double-submitted create from making two records. Most internal
+systems skip it and rely on unique constraints instead, which works when there is a natural key
 and does not when there is not. If your clients retry automatically, add it.
 
 ---
@@ -193,6 +193,10 @@ and does not when there is not. If your clients retry automatically, add it.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Every locking read must force a refresh. A locking read without it is a latent

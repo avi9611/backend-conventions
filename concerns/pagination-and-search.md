@@ -80,7 +80,7 @@ The right answer was outside the page.
 
 **The fix.** Ask the database for the aggregate. → [`analytics.md`](analytics.md)
 
-### 3d. The sort allow-list drifting from the declared type
+### 3d. The sort allow-list falling out of step with the declared type
 
 **Symptom.** A sort option appears in the API docs and returns a 422 when used. Or worse, a
 column that should not be sortable is.
@@ -182,6 +182,10 @@ next person does not re-litigate it per endpoint.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # All cap constants. Compare to the §5 table.

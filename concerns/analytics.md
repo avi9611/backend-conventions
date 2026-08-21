@@ -15,12 +15,12 @@ Every one of those numbers is an aggregate over a **whole tenant's rows**, which
 in the path of the two failures [`pagination-and-search.md`](pagination-and-search.md) exists to
 prevent. Silent truncation, and aggregating over a page instead of a table.
 
-The tempting shortcut is to fetch the list and add it up in the browser. Phoenix tried that once
-and reverted it before it shipped. It pulled the entire table into the browser, page one plus
+The tempting shortcut is to fetch the list and add it up in the browser. I have seen that tried
+and reverted before it shipped. It pulled the entire table into the browser, page one plus
 however many parallel requests it took, and summed it in JavaScript. It was wrong three ways at
-once. It re-implemented a SQL predicate in TypeScript where the two could drift. It did float
-arithmetic on money. And its counts were computed over a different row set than the filter its
-own click-through applied.
+once. It re-implemented a SQL predicate in TypeScript where the two could fall out of step. It
+did float arithmetic on money. And its counts were computed over a different row set than the
+filter its own click-through applied.
 
 So: **aggregates are computed in SQL, by the module that owns the table, behind one endpoint.**
 
@@ -52,7 +52,7 @@ So: **aggregates are computed in SQL, by the module that owns the table, behind 
 
 ## 3. The traps
 
-### 3a. The figure and the filter drifting apart
+### 3a. The figure and the filter disagreeing
 
 **Symptom.** A user clicks "42 low stock" and counts 39 rows.
 
@@ -83,7 +83,7 @@ population, not to the module's total, and each of those invariants deserves a t
 until a line carries a discount or tax.
 
 **The fix.** Before adding an aggregate, grep for an existing one over the same table and match
-it. Write the chosen measure down here. Phoenix retired a whole set of reports rather than keep
+it. Write the chosen measure down here. One team retired a whole set of reports rather than keep
 two measures in step.
 
 **The cross-module version of the same rule.** An early-stage estimate and a priced quote are two
@@ -170,7 +170,7 @@ Four things follow:
 
 ### 3g. What these actually cost — measure before optimising
 
-Phoenix measured this on a copy of production inflated to five years of volume. Roughly 300,000
+These were measured on a copy of production inflated to five years of volume. Roughly 300,000
 documents and 288,000 line items. The results cancelled three of four planned optimisations.
 
 | Endpoint shape | Today | Five years of volume |
@@ -280,6 +280,10 @@ quietly wrong answer."
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Every aggregate endpoint. Compare to §5.

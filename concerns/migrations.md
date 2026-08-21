@@ -84,10 +84,10 @@ created first.
 tool to emit that constraint as a separate statement once both tables exist. Then everything
 orders correctly with no manual work.
 
-**Do this on every cycle you create.** Phoenix has three. The one that carries the flag is fine.
-The two older ones do not, and a full regeneration of that schema needs manual reordering. That
-is a permanent property of the schema now, not a bug, and it is written down so a regeneration
-does not rediscover it the hard way.
+**Do this on every cycle you create.** One schema I know has three. The newest carries the flag
+and regenerates cleanly. The two older ones do not, and a full regeneration of that schema needs
+manual reordering. That is a permanent property of the schema now, not a bug, and it is written
+down so a regeneration does not rediscover it the hard way.
 
 ### 3e. The squash
 
@@ -193,6 +193,10 @@ detail.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Migration count.

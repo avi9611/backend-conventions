@@ -33,9 +33,9 @@ your API, then every request reaches you from that one address.
   everybody out.
 - **Never read the first entry of a forwarded-for header.** A proxy appends, so the first hop is
   caller-set and forgeable.
-- **Use a fixed window, and set the expiry on the first failure.** Refreshing it on every attempt
-  makes the window slide forward forever, so a patient attacker is never released and never
-  blocked.
+- **Use a fixed window, and set the expiry on the first failure.** Refreshing it each time
+  somebody tries makes the window slide forward forever, so a patient attacker is never released
+  and never blocked.
 
 ---
 
@@ -51,7 +51,8 @@ who typed their password correctly the first time.
 **The fix.** Key on the identity being attempted. A per-email failure counter is IP-independent,
 so the proxy cannot weaken it, and one person's typos cannot lock out their colleagues.
 
-Phoenix removed its per-IP login and refresh limits for exactly this reason.
+Systems behind a proxy end up removing their per-IP login and refresh limits for exactly this
+reason.
 
 ### 3b. The one place a per-IP limit is still right
 
@@ -149,6 +150,10 @@ at the proxy or the CDN, before your process is involved.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # The rate limiter's public surface.

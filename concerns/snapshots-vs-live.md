@@ -45,7 +45,7 @@ document records which way each one went, and why.
 ## 3. The traps
 
 There are four shapes. Run all four against any new document. Three of them were real bugs in
-Phoenix and the fourth was a false alarm, which is itself worth knowing.
+real systems and the fourth was a false alarm, which is itself worth knowing.
 
 ### 3a. Shape A — an issued document resolves a field live that should have been frozen
 
@@ -98,8 +98,8 @@ orphan is an auditable fact rather than a silent one. It was *renaming* that nee
 
 ### 3d. Shape D — a denormalised cache restates past records
 
-**Symptom.** Nothing. This one was checked and rejected in Phoenix, and it is worth writing down
-so nobody re-investigates.
+**Symptom.** Nothing. This one gets investigated and turns out fine, and it is worth writing down
+so nobody re-investigates it.
 
 The item's "last purchase cost" looks like it would restate history. It does not, because every
 stock movement carries its **own** cost. The cached value only seeds the default for future
@@ -136,8 +136,8 @@ controlled forms at all, write this down where somebody will find it.
 Row 2: columns are queryable and cost a migration each. A JSON blob is flexible and you cannot
 filter on it. For anything a report needs to group by, use columns.
 
-Row 6 is a real trap and Phoenix left it open. If the detail screen shows today's supplier name
-while the PDF shows the frozen one, users will report the PDF as broken. Pick one and be
+Row 6 is a real trap and it usually gets left open. If the detail screen shows today's supplier
+name while the PDF shows the frozen one, users will report the PDF as broken. Pick one and be
 consistent.
 
 ---
@@ -182,6 +182,10 @@ Every row in this table must be in the cache key, or a change to it can never re
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # The snapshot mixins and who uses them.

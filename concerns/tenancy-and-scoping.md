@@ -82,8 +82,8 @@ of code anybody wrote.
 
 **The fix, and it is worth copying exactly.** In a module with a narrower rule, **override the
 inherited helper so it raises**. Then the module physically cannot reach for the house helper by
-accident. Force every path through the module's own narrowing. Phoenix did this for certificates
-and left four other modules on the old shape, and those four are still an open hole.
+accident. Force every path through the module's own narrowing. I have seen this done for one
+module and skipped for four others, and those four were still an open hole years later.
 
 ### 3d. Not everything gets a tenant id
 
@@ -110,7 +110,7 @@ classic case. Null means company-wide, and the query becomes `tenant = X OR tena
 **The fix.** It is a real requirement, so plan for it. Either make the base class handle a
 nullable tenant, or accept that this module writes its own guard and cover it with its own test.
 What you must not do is let it quietly opt out of scoping altogether, which is exactly what
-happened in Phoenix and cost a real authorisation bug.
+happens, and it costs a real authorisation bug.
 
 ### 3f. File attachments share one namespace
 
@@ -185,6 +185,10 @@ request after login is the case to think about.
 
 ## 7. How to re-check this doc
 
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
+
 ```bash
 # Files that scope their list queries. A scoped module missing from this list is
 # either a leak or a deliberate local scope. Know which.
@@ -201,6 +205,11 @@ grep -rn --include="*.py" "class .*(.*ScopedService.*)" app/
 # A write schema that accepts a tenant or author field. Use the syntax tree, not a
 # grep: a grep cannot tell a Create schema from a Response schema, and a Response
 # carrying the tenant id is correct.
+#
+# This does not always expect zero. Assigning a user TO a tenant is admin input, not
+# a tenancy stamp, so the admin user schemas legitimately appear. So does a config
+# row whose tenant is nullable (see 3e). List yours here, and treat anything else as
+# a leak.
 python3 - <<'PY'
 import ast, pathlib
 FORBIDDEN = ("tenant", "branch", "created_by", "company_id", "owner_id")

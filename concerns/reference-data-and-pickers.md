@@ -19,9 +19,9 @@ request they are allowed to raise?" are not the same question. Answer both with 
 permission and you produce a form with a permanently empty required field, and no error message
 explaining why.
 
-This is not hypothetical. In Phoenix a technician who held "create purchase request" opened the
-form and got a 403 on every keystroke in the supplier field. An audit across seven roles found
-the same shape in **14 places across 6 of the 10 non-admin roles**.
+This is not hypothetical. A technician who held "create purchase request" opened the form and got
+a 403 on every keystroke in the supplier field. An audit across seven roles found the same shape
+in **14 places across 6 of the 10 non-admin roles**.
 
 **The fix is a second, deliberately tiny endpoint per referenceable resource.** It carries no
 permission and returns an id, a label and one disambiguator. Its safety comes from the narrowness
@@ -68,7 +68,7 @@ into the result, returned regardless of the search text and regardless of the ac
 sorted first. Then the client is a plain search box.
 
 Doing it in the component means eight components each carrying the same shim, and eight chances
-to get it wrong. Phoenix had exactly that, then deleted all eight.
+to get it wrong. One codebase had exactly that, then deleted all eight.
 
 **Pinned ids must not bypass the tenant filter, and must not bypass any narrowing predicate.**
 A pinned id cannot be a way to smuggle a row into a picker that is meant to exclude it.
@@ -104,8 +104,8 @@ person.
 **Why.** Somebody worked around the 403 by hiding the control behind the owning module's read
 permission. Now the gate hides a capability the role actually has.
 
-**The fix.** Fix the feed, then delete the workaround. Phoenix found one of these still in place
-after the picker was fixed.
+**The fix.** Fix the feed, then delete the workaround. One of these was found still in place long
+after the picker itself had been fixed.
 
 ### 3e. The parallel mechanism in the corner of the codebase
 
@@ -183,6 +183,10 @@ stays gated.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Every options route in the app. A new one means §5 is stale.

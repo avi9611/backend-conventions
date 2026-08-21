@@ -47,8 +47,8 @@ application should have refused the request before it ever reached the database.
 for the client and it hides the fact that a race got through.
 
 **The fix.** Keep the handler. Read a constraint-violation 409 in the logs as "did we forget a
-guard?" rather than "a race happened". Phoenix found a real concurrency bug this way, months
-after it started firing.
+guard?" rather than "a race happened". A real concurrency bug was found this way, months after it
+started firing.
 
 ### 3b. The safety net that becomes the pattern
 
@@ -148,6 +148,10 @@ These are the cross-cutting framework guards, not domain modules. Anything else 
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Inline errors outside the exempt files. Anything else is a violation.

@@ -3,7 +3,8 @@
 > Read this before you change the shape of a response, or the meaning of a field.
 >
 > **Status in this project:** in force from the first client
-> **New in this kit.** Phoenix has a version prefix and no rules about what may change behind it.
+> **Worth its own file.** Most projects have a version prefix and no rule about what may change
+> behind it.
 > **Last verified against the code:** 21 August 2026
 
 ---
@@ -158,7 +159,7 @@ until the old one is retired. Avoid it as long as you can.
 
 ### Shared response shapes
 
-The ones that many endpoints use, and that are therefore expensive to change.
+The ones that many endpoints use, and so are expensive to change.
 
 | Shape | Used by | Pinned by a test? |
 |---|---|---|
@@ -186,6 +187,10 @@ The ones that many endpoints use, and that are therefore expensive to change.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Endpoints with no summary. These are the ones nobody can read at 2am.

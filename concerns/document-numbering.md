@@ -187,6 +187,10 @@ happens.
 
 ## 7. How to re-check this doc
 
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
+
 ```bash
 # The document types. Compare to §5.
 grep -n "class DocType" -A 30 app/*/numbering.py

@@ -93,8 +93,8 @@ loop, from that tenant's zone, not once at the top.
 **Symptom.** A punctual employee is marked late. A shift boundary lands on the wrong side.
 
 **Why.** Comparing a stored UTC instant against a local clock time needs a conversion, and
-somebody hardcoded a zone. Phoenix had one module hardcoded to the wrong country, inherited from
-a port of an earlier system, and it produced real pay deductions.
+somebody hardcoded a zone. I have seen a module hardcoded to the wrong country, inherited from a
+port of an earlier system, producing real pay deductions.
 
 **The fix.** Convert through the tenant's zone. And put the check in §7, because a hardcoded zone
 is easy to grep for and impossible to spot in review.
@@ -185,6 +185,10 @@ its editable state.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # The UTC-date bug. Expect zero.

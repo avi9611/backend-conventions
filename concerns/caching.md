@@ -12,8 +12,8 @@
 **Start from the position that you do not need a cache.**
 
 A cache buys you speed and charges you an invalidation contract on every write, forever. Most new
-projects are nowhere near needing that trade. Phoenix has forty modules and three server-side
-caches, and one of those is not really a cache.
+projects are nowhere near needing that trade. One mature system I reviewed had forty modules and
+three server-side caches, and one of those was not really a cache.
 
 There are usually three different things people call caching, and confusing them is the main
 source of trouble:
@@ -65,7 +65,7 @@ somehow makes it worse.
 flag never flips, so **every** call re-attempts a connection against a five-second timeout. There
 is no failure memory and no backoff.
 
-Phoenix measured the worst case: a screen resolving twenty names spent **about 100 seconds**
+Measured worst case on a real system: a screen resolving twenty names spent **about 100 seconds**
 before falling back to a database query that takes milliseconds.
 
 **The fix.** Connect once at startup. Remember failure and back off. And take the loop apart while
@@ -213,6 +213,10 @@ and is safe to serve slightly stale. Then:
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Cache consumers. Compare to §5.

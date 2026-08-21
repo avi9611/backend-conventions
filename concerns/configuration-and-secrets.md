@@ -3,7 +3,7 @@
 > Read this before you add a setting, a feature flag or a secret.
 >
 > **Status in this project:** in force from day 1
-> **New in this kit.** Phoenix has these rules scattered across four files. They are worth one.
+> **Worth its own file.** These rules usually end up scattered as asides across four other docs.
 > **Last verified against the code:** 21 August 2026
 
 ---
@@ -49,7 +49,7 @@ Those are the ones that travel, because somebody copies a working environment fi
 The recurring pattern, and the reason this file exists. A setting is correct in development and
 dangerous in production, and it moves when somebody copies a working environment file.
 
-Real examples, all from Phoenix:
+Real examples, all seen in production systems:
 
 | Setting | In development | In production |
 |---|---|---|
@@ -184,6 +184,10 @@ now you need to think about caching it and about who is allowed to.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Environment variables read outside the settings module. Expect zero.

@@ -69,7 +69,8 @@ anyone who has ever seen one.
 - **Production: leave it blank.** Expiring signed links are the access control.
 - If a CDN is genuinely wanted, it fronts a **separate public bucket** holding only
   non-confidential assets. Never the bucket documents live in.
-- Put it in the pre-production checklist. → [`configuration-and-secrets.md`](configuration-and-secrets.md)
+- Put it in the pre-production checklist.
+  → [`configuration-and-secrets.md`](configuration-and-secrets.md)
 
 ### 3c. Protected files, and why the refusal is loud
 
@@ -111,8 +112,8 @@ Four rules follow, and a third such asset must copy them:
 - **The old object is deleted after the commit, never before**, and only when the key actually
   changed. Deleting first means a failed write leaves the row pointing at nothing.
 - **The key never leaves the server.** Responses carry a presence flag and a freshly signed link,
-  generated per request and applied *after* the response is built. **Never bake a signed link
-  into a cached or stored response.** It outlives its own signature inside the cache and starts
+  generated per request and applied *after* the response is built. **Never store a signed link
+  inside a cached or saved response.** It outlives its own signature inside the cache and starts
   failing part-way through the lifetime, on an image nobody can force to refresh.
 - **Validate at upload, because nothing revalidates later.**
 
@@ -152,7 +153,7 @@ compliance story depends on it, write the sweep.
 | Size limits, per type | | | |
 | Virus scanning | yes, or no | | |
 | Public domain | blank in production | | |
-| Orphan sweep | yes, or accept the drift | | |
+| Orphan sweep | yes, or accept that the two fall out of step | | |
 
 Row 2: signed direct upload keeps large files off your API process entirely. It costs you a
 second endpoint and makes validation harder, because the file arrives without passing through you.
@@ -200,6 +201,10 @@ access log at all. If you need download auditing, that decides it.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # The storage consumers. Compare to §5.

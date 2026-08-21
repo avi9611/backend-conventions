@@ -30,7 +30,7 @@ That shape has a cost, and you should decide with your eyes open. See §3a.
 - **Use one wrapper**, not the logger directly. It fills in the resource type and keeps call
   sites to about four arguments.
 - **Do not pass the actor's name, role, tenant or IP by hand.** They come from the request
-  context. Passing them by hand is how they drift.
+  context. Passing them by hand is how they end up wrong.
 - **The details field must be safe to serialise.** Decimals, ids and timestamps get handled.
   Arbitrary objects do not.
 - **Audit tables are append-only.** No soft delete, no updates, no tenant id of their own beyond
@@ -58,7 +58,8 @@ requirement, or is it a convenience for support?
   worker move it to its destination. Then the log commits or rolls back with the business action,
   which is what you actually wanted, and delivery is a separate problem.
 
-Phoenix chose fire-and-forget and lists the gap as the single most valuable thing left to close.
+A system I reviewed chose fire-and-forget and now lists this gap as the most valuable thing left
+to close.
 **If your system is audited, build the outbox on day 1.** It is a table and thirty lines. Retro-
 fitting it means backfilling a trail you cannot backfill.
 
@@ -166,6 +167,10 @@ All three must be wired, or rows land anonymous.
 
 ## 7. How to re-check this doc
 
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
+
 ```bash
 # Awaiting the logger. Expect zero.
 grep -rn --include="*.py" "await activity.log\|await self._audit" app/
@@ -183,9 +188,13 @@ grep -rn --include="*.py" "bind_actor\|bind_tenant\|bind_branch\|bind_ip" app/ |
 ```
 
 ```bash
-# Ordering: no log call before the commit in the same function. A grep cannot do
-# this. Walk the tree.
-python3 - <<'PY'
+# Ordering: no log call before the commit on the same path. A grep cannot do this,
+# so walk the tree. Expect zero.
+#
+# The `return` check is what makes it usable. Without it, an early-return branch
+# that audits a read and never commits, a download for instance, is flagged on
+# every run. A check that always fires is a check nobody reads.
+python3 - <<'AST'
 import ast, pathlib
 for p in sorted(pathlib.Path("app").rglob("*.py")):
     if p.name.startswith("test_"):
@@ -197,17 +206,24 @@ for p in sorted(pathlib.Path("app").rglob("*.py")):
     for fn in ast.walk(tree):
         if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
-        commit_line = min(
-            (n.lineno for n in ast.walk(fn)
-             if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
-             and n.func.attr == "commit"),
-            default=None,
+        commits = sorted(
+            n.lineno for n in ast.walk(fn)
+            if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+            and n.func.attr == "commit"
         )
-        if commit_line is None:
+        if not commits:
             continue
+        returns = [n.lineno for n in ast.walk(fn) if isinstance(n, ast.Return)]
         for n in ast.walk(fn):
-            if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) \
-               and n.func.attr in ("log", "_audit") and n.lineno < commit_line:
-                print(f"{p}:{n.lineno}  audit before commit in {fn.name}")
-PY
+            if not (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                    and n.func.attr in ("log", "_audit")):
+                continue
+            later = [c for c in commits if c > n.lineno]
+            if not later:
+                continue
+            # a return between the two means they sit on different paths
+            if any(n.lineno < r < later[0] for r in returns):
+                continue
+            print(f"{p}:{n.lineno}  audit before commit in {fn.name}")
+AST
 ```

@@ -3,8 +3,8 @@
 > Read this before you build the client half of anything in this folder.
 >
 > **Status in this project:** applies as soon as there is a client
-> **New in this kit.** It merges Phoenix's frontend guardrail with its unsaved-work concern, and
-> keeps only the parts where the backend's shape decides the client's behaviour.
+> **Worth its own file.** It keeps only the parts where the backend's shape decides the client's
+> behaviour, which is what a backend developer needs and the rest of a frontend guide is not.
 > **Last verified against the code:** 21 August 2026
 
 ---
@@ -94,8 +94,8 @@ through it without reading. Which is worse than having no prompt.
 > **Compare against the state the form opened with. Never against "is it empty".**
 
 An edit form starts full. A create form often starts pre-seeded, with one blank line, or with an
-outstanding amount filled in. Phoenix wired six modals with a naive non-empty check and **all six
-were wrong**, because every one of them was pre-seeded.
+outstanding amount filled in. One team wired six modals with a naive non-empty check and **all
+six were wrong**, because every one of them was pre-seeded.
 
 **Check what a form opens with before you write the expression.**
 
@@ -121,11 +121,11 @@ The dirty property is optional and defaults to off, because defaulting it on wou
 read-only detail panel prompt.
 
 **So a modal added tomorrow silently gets the old lose-everything behaviour.** There is no lint
-rule for "this component contains an input and should therefore pass the property".
+rule for "this component contains an input and so should pass the property".
 
 The audit is a one-off script: find every file containing the modal component plus form state, and
-diff it against those passing the property. Phoenix ran it and found **30 unguarded modals**,
-*after* a pass that believed itself complete.
+diff it against those passing the property. Run once on a real codebase, it found **30 unguarded
+modals**, *after* a pass that believed itself complete.
 
 **Deliberately unguarded:** read-only panels, single-action confirmations, and pickers. One click
 is cheap to redo, and a prompt on a trivial dialog is how the prompt stops being read on the forms
@@ -199,6 +199,10 @@ Row 7: every form that holds typed input. It is one property.
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Pickers reading a gated module list. Expect zero in the shared components.

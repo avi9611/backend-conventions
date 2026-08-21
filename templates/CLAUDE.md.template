@@ -19,7 +19,7 @@ follows. When in doubt, **copy the newest modules** — `<module>`, `<module>` a
 implementations. `<module>` specialises these rules, so match the canonical ones, not the outlier.
 
 Deeper reference, do not duplicate, link to it: `docs/concerns/` (one file per cross-cutting
-topic), `docs/CHECKLIST.md`, `docs/adr/`. **This file is the guardrail.**
+topic), `docs/CHECKLIST.md`, `docs/adr/`. **This file is the short version. The concern docs are the long one.**
 
 Stack: <framework> · <ORM> · <migrations> · <validation> · <database> · <queue> · <storage> ·
 <test runner>. Modular monolith, one package per business module.
@@ -79,8 +79,8 @@ holds what is true now.
 
 - **One owner per rule.** A cross-cutting rule is stated in full in exactly one place:
   `docs/concerns/<topic>.md`. The ADR owns the decision and its rationale. The concern doc owns
-  what is true now. **This file owns the one-line guardrail.** Everywhere else, summarise and
-  link. Never paste a rule into a README, because the copies drift and then disagree.
+  what is true now. **This file owns the one-line version.** Everywhere else, summarise and
+  link. Never paste a rule into a README, because the copies fall out of step and then disagree.
 - **Every file under `docs/` carries `Last verified against the code: <DD Month YYYY>`.** If you
   verify a claim while working, move the date. If you find a doc wrong, fix it in the same change.
 

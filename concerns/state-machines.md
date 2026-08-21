@@ -149,6 +149,10 @@ system's flow should not have to open nine enums files.
 
 ## 7. How to re-check this doc
 
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
+
 ```bash
 # Modules with a transition map.
 grep -rln --include="enums.py" "_STATE_TRANSITIONS\|_TRANSITIONS" app/ | wc -l
@@ -162,7 +166,15 @@ grep -rln --include="*.py" "assert_transition(" app/ | grep -v "state_machine.py
 
 ```bash
 # A status or assignment field accepted through an update schema. Syntax tree, not
-# grep. Expect zero.
+# grep, because a grep cannot tell an Update schema from a Response schema.
+#
+# This one does NOT expect zero. Read every hit. Three shapes are legitimate and
+# will show up, so record yours here the first time you run it:
+#   - a DEDICATED assignment schema whose class name happens to end in "Update"
+#     (that is the rule being followed, not broken)
+#   - an account status an admin sets directly, which has no state machine
+#   - a child entity's own status, guarded by its own map
+# Anything else is the generic update carrying a state field, which is the bug.
 python3 - <<'PY'
 import ast, pathlib
 BANNED = {"state", "status", "assigned_to", "assigned_to_user_id"}

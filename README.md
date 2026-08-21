@@ -2,11 +2,10 @@
 
 A portable set of rules, traps and checklists for building a new backend.
 
-It is the Phoenix `docs/concerns/` folder with the Phoenix taken out. Every rule here was paid
-for once already, by a bug that shipped. The point of copying the folder into a new project is
-that you do not pay for them again.
+Every rule in here was paid for once already, by a bug that shipped. The point of copying the
+folder into a new project is that you do not pay for them again.
 
-**Last verified against the code: 21 August 2026.** (Phoenix backend, at that date.)
+**Last verified against the code: 21 August 2026.**
 
 ---
 
@@ -16,8 +15,8 @@ that you do not pay for them again.
 |---|---|
 | [`CHECKLIST.md`](CHECKLIST.md) | **Start here.** The whole convention set as things to tick off. Day 0 decisions, then per module, per route, per mutation, per list, per PR, and before you go live. |
 | [`concerns/`](concerns/README.md) | One file per topic that runs across every module. Read one *before* you add the thing it covers. |
-| [`RECOMMENDATIONS.md`](RECOMMENDATIONS.md) | What I added on top of Phoenix, and the six Phoenix decisions I would make differently next time. |
-| [`templates/`](templates/) | Copy-me files. The always-loaded guardrail file, a concern doc, an ADR, a module guide, a session handoff. |
+| [`RECOMMENDATIONS.md`](RECOMMENDATIONS.md) | The five things worth building on day 1, the six traps that stay open for years, and three patterns worth copying exactly. |
+| [`templates/`](templates/) | Copy-me files. The always-loaded rules file, a concern doc, an ADR, a module guide, a session handoff. |
 | [`tools/check_docs.py`](tools/check_docs.py) | Fails the commit when a doc link is dead or a doc has gone stale. |
 
 ---
@@ -31,7 +30,7 @@ that you do not pay for them again.
    `CLAUDE.md` and fill in the blanks. This is the file an AI assistant loads at the start of
    every session, so it has to stay short.
 4. Delete the concern docs for things your project genuinely does not have. If you have one
-   branch and will only ever have one, delete `tenancy-and-scoping.md`. Do not keep a doc that
+   tenant and will only ever have one, delete `tenancy-and-scoping.md`. Do not keep a doc that
    describes a mechanism you did not build. A doc that lies is worse than no doc.
 5. As you build, fill in each concern doc's **§5 Inventory**. That table is what makes the doc
    worth reading a year later.
@@ -52,8 +51,8 @@ Everywhere else it appears as a one-line summary with a link. The ADR owns *why 
 The concern doc owns *what is true now*. `CLAUDE.md` owns *the one line you read before every
 change*.
 
-This split exists because the same rule once lived in eight files and the copies disagreed. When
-a rule changes you should have one file to edit, not eight to hunt.
+This split matters because the same rule will otherwise end up in eight files, and the copies
+will disagree. When a rule changes you want one file to edit, not eight to hunt.
 
 ### 2. Every doc carries a date stamp
 
@@ -74,7 +73,8 @@ change as the code. An undated doc is unusable, because nobody can tell "true in
 The last section of every concern doc is a set of shell commands that regenerate its inventory,
 with the count each should produce. If a count disagrees with the table, **the table is stale**.
 
-This is the only real defence a document has. Review will not catch drift. A grep will.
+This is the only real defence a document has. Review will not notice a doc falling out of step
+with the code. A grep will.
 
 ---
 
@@ -92,14 +92,15 @@ Seven sections, always in this order. The shape is what makes them comparable.
 | 6 | New-module checklist | What a future module author must do about this topic. |
 | 7 | How to re-check | The literal commands, with expected counts. |
 
-§4 is the one Phoenix does not have. Phoenix answered those questions years ago and wrote down
-only the answer. A new project has to answer them, so the questions are the useful part.
+**§4 is the one most convention docs skip.** A mature codebase answered those questions years ago
+and wrote down only the answer. A new project has to answer them, so the questions are the useful
+part.
 
-§5 starting empty is normal and correct. Fill it as you build.
+**§5 starting empty is normal and correct.** Fill it as you build.
 
 ---
 
-## Keep the guardrail file short
+## Keep `CLAUDE.md` short
 
 `CLAUDE.md` in the repo root is loaded into an assistant's context at the **start of every
 session**, before anyone knows which part of it matters. Every line you add is context spent on
@@ -113,7 +114,7 @@ Treat 350 lines as a ceiling, not a target. The split:
 - Put the pointer in the section *heading*, like
   `## 15. Caching → docs/concerns/caching.md`, so it costs no extra line.
 
-The test: **can someone write correct code for the common case from `CLAUDE.md` alone?** If yes,
+The test: **can somebody write correct code for the common case from `CLAUDE.md` alone?** If yes,
 everything else belongs in the concern doc.
 
 Writing a concern doc should make its `CLAUDE.md` section *shorter*, not longer.
@@ -122,9 +123,11 @@ Writing a concern doc should make its `CLAUDE.md` section *shorter*, not longer.
 
 ## Where these rules came from
 
-Phoenix is a multi-branch calibration lab CRM. FastAPI, async SQLAlchemy 2.0, Postgres, Redis,
-Celery, S3. About 40 modules, 330 routes, 840 tests.
+A multi-tenant business system, in production, with about 40 modules, 330 endpoints and 840
+tests. Async Python, an ORM, Postgres, Redis, a task queue and S3-compatible storage.
 
-The stack shows through in places. Where a rule is really about SQLAlchemy or FastAPI I have said
-so, and said what the general version of the rule is. Most of them are not about the stack at all.
-"Do not aggregate over a page you already capped" is true in Django, Rails and Go.
+The stack shows through in places. Where a rule is really about a specific ORM or web framework I
+have said so, and said what the general version of the rule is. Most of them are not about the
+stack at all. "Do not aggregate over a page you already capped" is true in Django, Rails and Go.
+
+The war stories are real. Where a number appears, it was measured.

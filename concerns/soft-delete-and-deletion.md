@@ -179,6 +179,10 @@ Row 7: soft-deleted rows accumulate forever by default. That is a decision, not 
 
 ## 7. How to re-check this doc
 
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
+
 ```bash
 # Unique constraints on soft-deletable tables that are not partial. Read every hit.
 grep -rn --include="models.py" "unique=True\|UniqueConstraint" app/

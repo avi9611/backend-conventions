@@ -3,7 +3,7 @@
 > Read this before you accept a spreadsheet, or produce one.
 >
 > **Status in this project:** only needed when the first spreadsheet appears
-> **New in this kit.** Phoenix does both and documents neither.
+> **Worth its own file.** Most teams build both and document neither.
 > **Last verified against the code:** 21 August 2026
 
 ---
@@ -55,14 +55,14 @@ column name, and return the whole list. Only write if the list is empty.
 **And be specific.** "Row 12, column 'Department': 'Enginering' is not a known department. Did you
 mean 'Engineering'?" costs ten minutes to write and saves the support conversation entirely.
 
-### 3b. The template that drifts from the parser
+### 3b. The template that falls out of step with the parser
 
 **Symptom.** A user downloads the template, fills it in, and the import rejects the column names.
 
 **Why.** The template is a checked-in file and the parser was updated.
 
 **The fix.** Generate the template from the same column definition the parser reads. One list of
-columns, two consumers. Then they cannot drift.
+columns, two consumers. Then they cannot disagree.
 
 ### 3c. The timezone in the export
 
@@ -184,6 +184,10 @@ this" and "who can take a copy of this".
 ---
 
 ## 7. How to re-check this doc
+
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
 
 ```bash
 # Every import and export endpoint. Compare to §5.

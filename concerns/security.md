@@ -223,6 +223,10 @@ Also keep a **closed** list, so a stale audit read does not reopen something alr
 
 ## 7. How to re-check this doc
 
+> Paths below are examples from one tree. Adjust them to yours. What matters is the check,
+> not the path. Where a count is given, it is the count **for this project**, so fill it in
+> the first time you run it.
+
 ```bash
 # Password hashing and the single policy. Expect the policy type on every password
 # field and zero hand-written length limits elsewhere.
