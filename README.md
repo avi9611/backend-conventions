@@ -131,3 +131,25 @@ have said so, and said what the general version of the rule is. Most of them are
 stack at all. "Do not aggregate over a page you already capped" is true in Django, Rails and Go.
 
 The war stories are real. Where a number appears, it was measured.
+
+---
+
+## Where this came from
+
+I am a full-stack engineer at Hybrid Interactive Consultancy in Kochi, India. Over nine
+months of shipping CRM, ERP, hospital and HR systems on FastAPI, the same arguments kept
+coming back on every new project: how do we scope a tenant, where does the audit trail
+live, who is allowed to change a document once it is issued. This folder is those
+arguments, settled once and written down.
+
+It is opinionated on purpose. Some of it will not fit your project — delete those files
+rather than keeping a doc that describes a mechanism you did not build.
+
+If a rule here saves you a bug, that is the whole point. If you disagree with one, open an
+issue; I would rather find out I am wrong than be consistent.
+
+— [Avinash Neralakatte](https://avi9611.github.io)
+
+## License
+
+MIT. See [`LICENSE`](LICENSE). Use it, fork it, change it.
